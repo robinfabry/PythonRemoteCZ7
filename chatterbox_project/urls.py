@@ -17,13 +17,13 @@ from django.contrib import admin
 from django.urls import path
 
 import base.views
-from base.class_views.RoomsView import RoomsView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('hello/', base.views.hello),
+    path('room_create/', base.views.RoomCreateView, name='create_new'),
     path('search/', base.views.search, name='search'),
     path('room/<id_room>', base.views.room, name='room'),
-    path('room/', base.views.room_v2, name='room'),
-    path('', RoomsView.as_view(), name='index'),
+    path('', base.views.RoomsView.as_view(), name='index'),
 ]

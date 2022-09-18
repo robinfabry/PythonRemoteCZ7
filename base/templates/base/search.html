@@ -1,12 +1,7 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<h1>Formulář zobrazení místnosti</h1>
-    <form action="" method="get">
-        <input type="text" name="q" value="">
-        <input type="submit" value="Vyhledat">
-    </form>
-<p>---------------------------------------------------------------------------</p>
+
 <h1>Výsledky hledání pro: {{ query }}</h1>
 <ul>
     {% for room in rooms %}

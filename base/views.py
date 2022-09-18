@@ -1,7 +1,9 @@
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.views.generic import FormView, ListView
 
+from base.forms import RoomForm
 from base.models import Room
 
 
@@ -25,13 +27,30 @@ def search(request):
 def room(request, id_room):
     room = Room.objects.get(id=id_room)
     context = {'room': room}
-    return render(request, "base/room.html", contex)
+    return render(request, "base/room.html", context)
 
-def room_v2(request):
-    id_room = request.GET.get('id_room', '')
-    if id_room == '':
-        return HttpResponse("Prosím zadejte číslo do adresy room/*číslo*.")
-    room = Room.objects.get(id=id_room)
-    contex = {'room': room}
-    return render(request, "base/room.html", contex)
+# def room_v2(request):
+#     id_room = request.GET.get('id_room', '')
+#     if id_room == '':
+#         return HttpResponse("Prosím zadejte číslo do adresy room/*číslo*.")
+#     room = Room.objects.get(id=id_room)
+#     context = {'room': room}
+#     return render(request, "base/room.html", context)
 
+def RoomCreateView(request):
+    if request.method == 'GET':
+        form = RoomForm()
+        context = {'form': form}
+        return render(request,'base/room_form.html', context)
+    elif request.method == 'POST':
+        form = RoomForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('index')
+    else:
+        return redirect('index')
+
+
+class RoomsView(ListView):
+    template_name = 'base/index.html'
+    model = Room
