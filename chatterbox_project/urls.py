@@ -21,9 +21,11 @@ import base.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('hello/', base.views.hello),
-    path('room_create/', base.views.RoomCreateView, name='create_new'),
+    path('room_create/', base.views.RoomCreateView.as_view(), name='room_new'),
+    path('room_update/<pk>', base.views.RoomUpdateView.as_view(), name='room_update'),
+    path('room_delete/<pk>', base.views.RoomDeleteView.as_view(), name='room_delete'),
+    path('message_create/', base.views.MessageCreateView, name='message_new'),
     path('search/', base.views.search, name='search'),
-    path('room/<id_room>', base.views.room, name='room'),
+    path('room/<pk>', base.views.room, name='room'),
     path('', base.views.RoomsView.as_view(), name='index'),
 ]

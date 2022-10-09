@@ -1,0 +1,14 @@
+{% extends 'main.html' %}
+{% block content %}
+
+
+
+<h1></h1>
+<b></b>
+
+<form action="" method="post">
+    {% csrf_token %}
+    <h1>Opravdu chceš místost *{{ object.name}} smazat?</h1>
+    <input type="submit" value="Smazat">
+</form>
+{% endblock %}

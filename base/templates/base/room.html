@@ -3,6 +3,19 @@
 
 
 
-  <h1>{{ room.name }}</h1>
-  <b>{{ room.description }}</b>
+<h1>{{ room.name }}</h1>
+<b>{{ room.description }}</b>
+<form action="" method="POST">
+    {% csrf_token %}
+    <input name="body" placeholder="Napiš svůj příspěvek">
+</form>
+<ul>
+     {% for message in messages %}
+    <li>
+        <b>{{ message.body }}</b><br>
+        <em>{{ message.user}}, {{ message.created}}</em>
+    </li>
+     {% endfor %}
+</ul>
+
 {% endblock %}

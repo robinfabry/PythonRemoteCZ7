@@ -1,17 +1,10 @@
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.views.generic import FormView, ListView
-
-from base.forms import RoomForm
-from base.models import Room
-
-
-# Create your views here.
-def hello(request):
-    s = request.GET.get('s', '')
-    return HttpResponse(f'Hello, {s} world!')
-
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView, ListView, DeleteView
+from base.forms import RoomForm, MessageForm
+from base.models import Room, Message
 
 def search(request):
     q = request.GET.get('q', '')  # 127.0.0.1/search?q=Dja
@@ -24,33 +17,73 @@ def search(request):
     context = {'query': q, 'rooms': rooms}
     return render(request, "base/search.html", context)
 
-def room(request, id_room):
-    room = Room.objects.get(id=id_room)
-    context = {'room': room}
-    return render(request, "base/room.html", context)
+class RoomCreateView(CreateView): #použitím CreateView je ukládání do databáze automatizováno
+    template_name = 'base/room_form.html' #šablona použití formuláře
+    form_class = RoomForm #který formulář použijeme
+    success_url = reverse_lazy('index') #podobné jako return redirect
 
-# def room_v2(request):
-#     id_room = request.GET.get('id_room', '')
-#     if id_room == '':
-#         return HttpResponse("Prosím zadejte číslo do adresy room/*číslo*.")
-#     room = Room.objects.get(id=id_room)
-#     context = {'room': room}
-#     return render(request, "base/room.html", context)
+    def form_invalid(self, form):
+       return super().form_invalid(form)
 
-def RoomCreateView(request):
+class RoomUpdateView(UpdateView):
+    template_name = 'base/room_form.html'
+    model = Room
+    form_class = RoomForm
+    success_url = reverse_lazy('index')
+
+    def form_invalid(self, form):
+        return super().form_invalid(form)
+
+class RoomDeleteView(DeleteView):
+    template_name = 'base/room_confirm_delete.html'
+    model = Room
+    success_url = reverse_lazy('index')
+# def RoomCreateView(request):
+#     if request.method == 'POST':
+#         form = RoomForm(request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('index')
+#     form = RoomForm()
+#     context = {'form': form}
+#     return render(request, 'base/room_form.html', context)
+
+def MessageCreateView(request):
     if request.method == 'GET':
-        form = RoomForm()
-        context = {'form': form}
-        return render(request,'base/room_form.html', context)
+        message_form = MessageForm()
+        context = {'message_form': message_form}
+        return render(request,'base/message_form.html', context)
     elif request.method == 'POST':
-        form = RoomForm(request.POST)
-        if form.is_valid():
-            form.save()
+        message_form = MessageForm(request.POST)
+        if message_form.is_valid():
+            message_form.save()
             return redirect('index')
     else:
         return redirect('index')
 
 
+
 class RoomsView(ListView):
     template_name = 'base/index.html'
     model = Room
+
+# class MessageView(ListView):
+#     template_name = 'base/room.html'
+#     model = Message
+
+def room(request, pk):
+    room = Room.objects.get(id=pk)
+    messages = room.message_set.all()
+    # POST
+    if request.method == 'POST':
+        Message.objects.create(
+            user=request.user,
+            room=room,
+            body=request.POST.get('body')
+        )
+        room.participants.add(request.user)
+        return redirect('room', pk=room.id)
+
+    # GET
+    context = {'room': room, 'messages': messages}
+    return render(request, 'base/room.html', context)
